@@ -180,6 +180,12 @@ export const MyFilesPage: React.FC = () => {
     try {
       await deleteDocument(row.document_path);
       showSnackbar("Document deleted successfully.", "success");
+      
+      if (favorites.includes(row.document_path)) {
+        const updated = toggleFavorite(row.document_path);
+        setFavorites(updated);
+      }
+      
       fetchFiles();
     } catch (err) {
       console.error(err);
