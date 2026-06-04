@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { AppLayout } from "./AppLayout";
 
 // Mock react-router-dom
@@ -58,22 +57,20 @@ describe("AppLayout", () => {
     expect(screen.queryByText("user@example.com")).not.toBeInTheDocument();
   });
 
-  it("opens dropdown menu on email button click", async () => {
-    const user = userEvent.setup();
+  it("opens dropdown menu on email button click", () => {
     render(<AppLayout>content</AppLayout>);
 
-    await user.click(screen.getByText("user@example.com"));
+    fireEvent.click(screen.getByText("user@example.com"));
 
     expect(screen.getByText("Logout")).toBeInTheDocument();
     expect(screen.getByText("Delete Account")).toBeInTheDocument();
   });
 
-  it("calls logout and navigates to /login on logout click", async () => {
-    const user = userEvent.setup();
+  it("calls logout and navigates to /login on logout click", () => {
     render(<AppLayout>content</AppLayout>);
 
-    await user.click(screen.getByText("user@example.com"));
-    await user.click(screen.getByText("Logout"));
+    fireEvent.click(screen.getByText("user@example.com"));
+    fireEvent.click(screen.getByText("Logout"));
 
     expect(mockLogout).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith("/login");
@@ -81,15 +78,14 @@ describe("AppLayout", () => {
 
   // ── Delete Account Tests ──────────────────────────────────────────────────
 
-  it("opens confirmation dialog when clicking Delete Account", async () => {
-    const user = userEvent.setup();
+  it("opens confirmation dialog when clicking Delete Account", () => {
     render(<AppLayout>content</AppLayout>);
 
     // Open menu
-    await user.click(screen.getByText("user@example.com"));
+    fireEvent.click(screen.getByText("user@example.com"));
     
     // Click Delete Account
-    await user.click(screen.getByText("Delete Account"));
+    fireEvent.click(screen.getByText("Delete Account"));
 
     // Verify dialog appears
     expect(screen.getByText("Are you sure? This will permanently delete your account and all your documents. This action cannot be undone.")).toBeInTheDocument();
@@ -98,14 +94,13 @@ describe("AppLayout", () => {
   });
 
   it("closes confirmation dialog when clicking Cancel", async () => {
-    const user = userEvent.setup();
     render(<AppLayout>content</AppLayout>);
 
-    await user.click(screen.getByText("user@example.com"));
-    await user.click(screen.getByText("Delete Account"));
+    fireEvent.click(screen.getByText("user@example.com"));
+    fireEvent.click(screen.getByText("Delete Account"));
 
     // Click Cancel
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
     // Verify dialog goes away
     await waitFor(() => {
@@ -116,14 +111,13 @@ describe("AppLayout", () => {
 
   it("calls deleteAccount and navigates to /login when confirming deletion", async () => {
     mockDeleteAccount.mockResolvedValueOnce(undefined);
-    const user = userEvent.setup();
     render(<AppLayout>content</AppLayout>);
 
-    await user.click(screen.getByText("user@example.com"));
-    await user.click(screen.getByText("Delete Account"));
+    fireEvent.click(screen.getByText("user@example.com"));
+    fireEvent.click(screen.getByText("Delete Account"));
 
     // Click Delete
-    await user.click(screen.getByRole("button", { name: "Delete" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
 
     await waitFor(() => {
       expect(mockDeleteAccount).toHaveBeenCalled();
@@ -131,4 +125,3 @@ describe("AppLayout", () => {
     });
   });
 });
-
