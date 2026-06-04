@@ -1,6 +1,8 @@
 # Propylon Document Manager
 
-Document versioning system with a Django REST Framework backend and a React/TypeScript frontend.
+Propylon Document Manager is a full-stack web application designed for document version control. It provides an interface to upload, track, and manage revisions of files over time, ensuring a clear history of document edits and updates.
+
+## Development Setup
 
 ### Prerequisites (macOS)
 1. Install [Homebrew](https://brew.sh/) (if not already installed)
