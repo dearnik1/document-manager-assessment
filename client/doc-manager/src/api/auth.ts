@@ -12,3 +12,26 @@ export const login = async (email: string, password: string): Promise<User> => {
     token: response.data.token,
   };
 };
+
+export const signup = async (
+  email: string,
+  password: string,
+  passwordConfirm: string
+): Promise<User> => {
+  const response = await client.post<{ token: string; email: string }>(
+    "/api/signup/",
+    {
+      email,
+      password,
+      password_confirm: passwordConfirm,
+    }
+  );
+  return {
+    email: response.data.email,
+    token: response.data.token,
+  };
+};
+
+export const deleteAccount = async (): Promise<void> => {
+  await client.delete("/api/account/");
+};

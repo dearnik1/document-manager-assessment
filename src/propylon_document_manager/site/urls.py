@@ -6,6 +6,7 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
 from propylon_document_manager.file_versions.api.views import DocumentStorageView
+from propylon_document_manager.file_versions.api.account_views import SignUpView, DeleteAccountView
 
 # API URLS
 urlpatterns = [
@@ -16,6 +17,9 @@ urlpatterns = [
     # DRF auth token
     path("api-auth/", include("rest_framework.urls")),
     path("auth-token/", obtain_auth_token),
+    # Account management
+    path("api/signup/", SignUpView.as_view(), name="signup"),
+    path("api/account/", DeleteAccountView.as_view(), name="account-delete"),
     # Logical document storage url path
     path("documents/<path:url_path>", DocumentStorageView.as_view(), name="document-storage"),
 ]
