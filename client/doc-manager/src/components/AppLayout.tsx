@@ -10,16 +10,23 @@ import {
   Menu,
   MenuItem,
   ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
-import { Logout, KeyboardArrowDown } from "@mui/icons-material";
+import { Logout, KeyboardArrowDown, DeleteForever } from "@mui/icons-material";
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -33,6 +40,24 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
     handleMenuClose();
     logout();
     navigate("/login");
+  };
+
+  const handleDeleteClick = () => {
+    handleMenuClose();
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      navigate("/login");
+    } catch (err) {
+      console.error("Failed to delete account", err);
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+    }
   };
 
   return (
@@ -101,7 +126,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                       border: "1px solid rgba(255, 255, 255, 0.08)",
                       borderRadius: 2,
                       color: "#f3f4f6",
-                      width: 160,
+                      width: 180,
                       "& .MuiMenuItem-root": {
                         px: 2,
                         py: 1,
@@ -118,9 +143,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                 <MenuItem
                   onClick={handleLogout}
                   sx={{
-                    color: "#ef4444",
+                    color: "#d1d5db",
                     "&:hover": {
-                      background: "rgba(239, 68, 68, 0.08) !important",
+                      background: "rgba(255, 255, 255, 0.06) !important",
                     },
                   }}
                 >
@@ -128,6 +153,20 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                     <Logout fontSize="small" />
                   </ListItemIcon>
                   Logout
+                </MenuItem>
+                <MenuItem
+                  onClick={handleDeleteClick}
+                  sx={{
+                    color: "#ef4444",
+                    "&:hover": {
+                      background: "rgba(239, 68, 68, 0.08) !important",
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: "inherit", minWidth: "28px !important" }}>
+                    <DeleteForever fontSize="small" />
+                  </ListItemIcon>
+                  Delete Account
                 </MenuItem>
               </Menu>
             </Box>
@@ -138,6 +177,48 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
       <Box component="main" sx={{ flex: 1 }}>
         {children}
       </Box>
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        sx={{
+          "& .MuiDialog-paper": {
+            background: "rgba(17, 24, 39, 0.98)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: 3,
+            color: "#f3f4f6",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Delete Account</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: "#9ca3af" }}>
+            Are you sure? This will permanently delete your account and all your
+            documents. This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            sx={{ color: "#9ca3af" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            disabled={deleting}
+            variant="contained"
+            sx={{
+              background: "#dc2626",
+              color: "#ffffff",
+              "&:hover": { background: "#b91c1c" },
+            }}
+          >
+            {deleting ? "Deleting…" : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -13,15 +13,18 @@ import {
   CircularProgress,
   InputAdornment,
   IconButton,
+  Link,
 } from "@mui/material";
 import { Visibility, VisibilityOff, Email, Lock } from "@mui/icons-material";
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const { login, signup } = useAuth();
   const navigate = useNavigate();
 
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,16 +36,30 @@ export const LoginPage: React.FC = () => {
       return;
     }
 
+    if (isSignUp) {
+      if (!passwordConfirm) {
+        setError("Please confirm your password.");
+        return;
+      }
+      if (password !== passwordConfirm) {
+        setError("Passwords do not match.");
+        return;
+      }
+    }
+
     try {
       setError(null);
       setLoading(true);
-      await login(email, password);
+      if (isSignUp) {
+        await signup(email, password, passwordConfirm);
+      } else {
+        await login(email, password);
+      }
       navigate("/files");
     } catch (err: any) {
       console.error(err);
       const apiError = err.response?.data;
       if (apiError && typeof apiError === "object") {
-        // Collect errors from response keys
         const messages = Object.entries(apiError)
           .map(([key, value]) => {
             const label = key === "non_field_errors" ? "" : `${key}: `;
@@ -50,13 +67,19 @@ export const LoginPage: React.FC = () => {
             return `${label}${valMsg}`;
           })
           .join(" ");
-        setError(messages || "Invalid email or password.");
+        setError(messages || (isSignUp ? "Sign up failed." : "Invalid email or password."));
       } else {
-        setError("Invalid email or password.");
+        setError(isSignUp ? "Sign up failed." : "Invalid email or password.");
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setError(null);
+    setPasswordConfirm("");
   };
 
   return (
@@ -121,7 +144,9 @@ export const LoginPage: React.FC = () => {
                 Document Manager
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Sign in to your account to manage files and revisions
+                {isSignUp
+                  ? "Create an account to start managing your files"
+                  : "Sign in to your account to manage files and revisions"}
               </Typography>
             </Box>
 
@@ -164,7 +189,7 @@ export const LoginPage: React.FC = () => {
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 id="password"
-                autoComplete="current-password"
+                autoComplete={isSignUp ? "new-password" : "current-password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
@@ -188,8 +213,34 @@ export const LoginPage: React.FC = () => {
                     ),
                   },
                 }}
-                sx={{ mb: 4 }}
+                sx={{ mb: isSignUp ? 2 : 4 }}
               />
+
+              {isSignUp && (
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="passwordConfirm"
+                  label="Confirm Password"
+                  type={showPassword ? "text" : "password"}
+                  id="password-confirm"
+                  autoComplete="new-password"
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  disabled={loading}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Lock sx={{ color: "text.secondary", fontSize: 20 }} />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  sx={{ mb: 4 }}
+                />
+              )}
 
               <Button
                 type="submit"
@@ -208,10 +259,33 @@ export const LoginPage: React.FC = () => {
               >
                 {loading ? (
                   <CircularProgress size={24} sx={{ color: "primary.contrastText" }} />
+                ) : isSignUp ? (
+                  "Sign Up"
                 ) : (
                   "Sign In"
                 )}
               </Button>
+
+              <Box sx={{ textAlign: "center", mt: 3 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {isSignUp ? "Already have an account? " : "Don't have an account? "}
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={toggleMode}
+                    sx={{
+                      color: "#a5b4fc",
+                      textDecoration: "none",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                  >
+                    {isSignUp ? "Sign in" : "Sign up"}
+                  </Link>
+                </Typography>
+              </Box>
             </Box>
           </CardContent>
         </Card>
