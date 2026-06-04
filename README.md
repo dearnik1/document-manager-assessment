@@ -1,6 +1,18 @@
 # Propylon Document Manager
 
-Document versioning system with a Django REST Framework backend and a React/TypeScript frontend.
+Propylon Document Manager is a full-stack web application designed for document version control. It provides an interface to upload, track, and manage revisions of files over time, ensuring a clear history of document edits and updates.
+
+## Development Setup
+
+### Prerequisites (macOS)
+1. Install [Homebrew](https://brew.sh/) (if not already installed)
+```sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+2. Install Python 3.11
+```sh
+brew install python@3.11
+```
 
 ### Prerequisites (WSL / Ubuntu)
 1. Update system and install base build tools
@@ -15,7 +27,7 @@ sudo apt update
 ```
 3. Install Python 3.11 and required environment tools
 ```sh
-sudo apt install python3.11 python3.11-dev python3.11-venv virtualenv -y
+sudo apt install python3.11 python3.11-dev python3.11-venv -y
 ```
 
 ## Backend Setup
@@ -51,9 +63,9 @@ make serve
 ### Backend Commands
 
 - `$ make build` to create the virtual environment.
+- `$ make fixture` to create a small number of fixture file versions.
 - `$ make serve` to start the development server on port 8001.
 - `$ make test` to run the limited test suite via PyTest.
-- `$ make fixture` to create a small number of fixture file versions.
 
 ## Frontend Setup
 
