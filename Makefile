@@ -18,7 +18,7 @@ endif
 # Environment management
 # ======================
 $(ENV_DIR):
-	virtualenv -p $(PYTHON) $(ENV_DIR)
+	$(PYTHON) -m venv $(ENV_DIR)
 	@printf "[install]\nfind-links=$(PIP_REPO_URL)\n" > $(ENV_DIR)/pip.conf
 
 print-install-message:
