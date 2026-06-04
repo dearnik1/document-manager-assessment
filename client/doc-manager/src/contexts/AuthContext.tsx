@@ -7,7 +7,9 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, passwordConfirm: string) => Promise<void>;
   logout: () => void;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,7 +39,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signup = async (email: string, password: string, passwordConfirm: string) => {
+    setIsLoading(true);
+    try {
+      const newUser = await authApi.signup(email, password, passwordConfirm);
+      localStorage.setItem("token", newUser.token);
+      localStorage.setItem("email", newUser.email);
+      setUser(newUser);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    setUser(null);
+  };
+
+  const deleteAccount = async () => {
+    await authApi.deleteAccount();
     localStorage.removeItem("token");
     localStorage.removeItem("email");
     setUser(null);
@@ -50,7 +71,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         login,
+        signup,
         logout,
+        deleteAccount,
       }}
     >
       {children}
