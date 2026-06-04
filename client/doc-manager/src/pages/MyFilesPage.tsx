@@ -39,6 +39,7 @@ import {
   deleteFileVersion,
 } from "../api/files";
 import type { FileVersionData } from "../types";
+import { getFavorites, toggleFavorite } from "../utils/favorites";
 
 export const MyFilesPage: React.FC = () => {
   // Grid Data & Loading states
@@ -54,10 +55,7 @@ export const MyFilesPage: React.FC = () => {
   });
 
   // Favorites state (persists in localStorage by document_path)
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem("favorites");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [favorites, setFavorites] = useState<string[]>(() => getFavorites());
 
   // Upload Document Dialog states
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -96,12 +94,8 @@ export const MyFilesPage: React.FC = () => {
   // Toggle favorite helper
   const handleToggleFavorite = (row: FileVersionData) => {
     const isFav = favorites.includes(row.document_path);
-    const updated = isFav
-      ? favorites.filter((path) => path !== row.document_path)
-      : [...favorites, row.document_path];
-
+    const updated = toggleFavorite(row.document_path);
     setFavorites(updated);
-    localStorage.setItem("favorites", JSON.stringify(updated));
     showSnackbar(
       isFav ? "Removed from favorites." : "Added to favorites.",
       "success"
@@ -186,6 +180,12 @@ export const MyFilesPage: React.FC = () => {
     try {
       await deleteDocument(row.document_path);
       showSnackbar("Document deleted successfully.", "success");
+      
+      if (favorites.includes(row.document_path)) {
+        const updated = toggleFavorite(row.document_path);
+        setFavorites(updated);
+      }
+      
       fetchFiles();
     } catch (err) {
       console.error(err);

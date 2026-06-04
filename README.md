@@ -1,8 +1,7 @@
-# Propylon Document Manager Assessment
+# Propylon Document Manager
 
-The Propylon Document Management Technical Assessment is a simple (and incomplete) web application consisting of a basic API backend and a React based client.  This API/client can be used as a bootstrap to implement the specific features requested in the assessment description. 
+Document versioning system with a Django REST Framework backend and a React/TypeScript frontend.
 
-## Getting Started
 ### Prerequisites (WSL / Ubuntu)
 1. Update system and install base build tools
 ```sh
@@ -18,27 +17,52 @@ sudo apt update
 ```sh
 sudo apt install python3.11 python3.11-dev python3.11-venv virtualenv -y
 ```
-### API Development
-The API project is a [Django/DRF](https://www.django-rest-framework.org/) project that utilizes a [Makefile](https://www.gnu.org/software/make/manual/make.html) for a convenient interface to access development utilities. This application uses [SQLite](https://www.sqlite.org/index.html) as the default persistence database you are more than welcome to change this. This project requires Python 3.11 in order to create the virtual environment.  You will need to ensure that this version of Python is installed on your OS before building the virtual environment.  Running the below commmands should get the development environment running using the Django development server.
-1. `$ make build` to create the virtual environment.
-2. `$ make fixture` to create a small number of fixture file versions.
-3. `$ make serve` to start the development server on port 8001.
-4. `$ make test` to run the limited test suite via PyTest.
-5. **Creating a Superuser:**
-   To access authenticated endpoints, you will need to create a superuser. Because the project uses a custom user model (which authenticates using `email` instead of `username`) and a non-standard settings directory, you must configure the settings module when running the command:
-   * **PowerShell:**
-     ```powershell
-     $env:DJANGO_SETTINGS_MODULE="propylon_document_manager.site.settings.local"
-     python manage.py createsuperuser
-     ```
-   * **Bash (Linux/macOS/Git Bash/WSL):**
-     ```bash
-     export DJANGO_SETTINGS_MODULE=propylon_document_manager.site.settings.local
-     python manage.py createsuperuser
-     ```
 
-### Client Development 
-See the Readme [here](https://github.com/propylon/document-manager-assessment/blob/main/client/doc-manager/README.md)
+## Backend Setup
 
-##
-[![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
+Create virtual environment and install dependencies:
+```bash
+make build
+```
+
+Load sample fixture data:
+```bash
+make fixture
+```
+
+(Optional) Create a superuser for accessing admin panel (PowerShell):
+```powershell
+$env:DJANGO_SETTINGS_MODULE="propylon_document_manager.site.settings.local"
+python manage.py createsuperuser
+```
+
+(Optional) Create a superuser for accessing admin panel (Bash):
+```bash
+export DJANGO_SETTINGS_MODULE=propylon_document_manager.site.settings.local
+python manage.py createsuperuser
+```
+
+Start the API server (port 8001):
+```bash
+make serve
+```
+
+
+### Backend Commands
+
+- `$ make build` to create the virtual environment.
+- `$ make serve` to start the development server on port 8001.
+- `$ make test` to run the limited test suite via PyTest.
+- `$ make fixture` to create a small number of fixture file versions.
+
+## Frontend Setup
+
+Navigate to the client directory (`cd client/doc-manager`) and use the following commands:
+
+- `$ npm install` to install all dependencies.
+- `$ npm run dev` to start Vite dev server with HMR.
+- `$ npm run build` to type-check and build for production.
+- `$ npm run test` to run Vitest unit tests.
+- `$ npm run test:watch` to run tests in watch mode.
+- `$ npm run lint` to run ESLint.
+- `$ npm run format` to run Prettier.
